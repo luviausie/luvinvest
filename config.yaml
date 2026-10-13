@@ -1,0 +1,36 @@
+# =====================================================================
+#  EMA DCA PLAYBOOK — pengaturan
+#  Edit langsung di GitHub: buka file ini → ikon pensil → Commit changes
+# =====================================================================
+
+# ---- WATCHLIST: aset yang mau dipantau (boleh banyak per kelas) ----
+# Kripto  = pasangan Binance spot  (BTCUSDT, ETHUSDT, SOLUSDT)
+# Lainnya = kode Yahoo Finance     (VOO, QQQ, AAPL, BBCA.JK, GC=F = emas)
+watchlist:
+  us_etf:    [VOO]
+  idx_stock: [BBCA.JK, BBRI.JK]
+  us_stock:  [AAPL]
+  gold:      [GC=F]
+  crypto:    [BTCUSDT, ETHUSDT]
+
+# ---- Anggaran ----
+pot_total_idr: 780000000      # total pot Rp780 jt
+months: 25                    # dibagi 25 bulan
+pot_monthly_idr: 31200000     # 1x = Rp31,2 jt per bulan
+buy_day: 1                    # tanggal beli tiap bulan (laporan tetap dikirim tiap hari)
+reserve_start_idr: 0          # isi dengan cadangan yang sudah ada sekarang
+
+# ---- Aturan per kelas aset ----
+# zona: gap < low → 2x | low..0% → 1,5x | 0%..high → 1x | > high → 0,5x
+# budget_pct: porsi dari pot 1x (0 = tahan, tanpa beli baru)
+classes:
+  us_etf:    {label: "US ETF",    ema: 200, tf: 1d, low: -8,  high: 20, budget_pct: 40}
+  idx_stock: {label: "Saham IDX", ema: 200, tf: 1d, low: -10, high: 25, budget_pct: 25, downtrend_cap: true}
+  us_stock:  {label: "Saham US",  ema: 200, tf: 1d, low: -10, high: 30, budget_pct: 10, downtrend_cap: true}
+  gold:      {label: "Emas",      ema: 200, tf: 1d, low: -8,  high: 20, budget_pct: 0}
+  crypto:    {label: "Kripto",    ema: 50,  tf: 1w, low: -30, high: 60, budget_pct: 0, take_profit_gap: 100}
+
+fixed:                        # dibeli tetap tanpa cek EMA
+  - {label: "Sukuk", budget_pct: 25}
+
+downtrend_lookback: 20        # saham "downtrend" = EMA lebih rendah dari 20 candle lalu

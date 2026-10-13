@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EMA DCA Playbook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b1019;--card:#0f1623;--card2:#121a29;--line:#1d2636;--text:#eef1f6;--muted:#8b95a8;--dim:#5b6578;
+  --teal:#22b39b;--amber:#f0b429;--red:#ef5350;--purple:#a66cff;--blue:#3fa9f5;--white:#f4f6fa;
+  --paper:#eef1f6;--paper2:#ffffff;--ink:#141a24;--ink2:#4a5466;
+  --mono:'JetBrains Mono',ui-monospace,monospace;--sans:'Manrope',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+.wrap{max-width:1200px;margin:0 auto;padding:32px 16px 40px}
+.eyebrow{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.2em;color:var(--amber)}
+h1{font-size:clamp(34px,6vw,54px);font-weight:800;letter-spacing:-.03em;margin-top:8px;line-height:1.05}
+.sub{color:var(--muted);font-size:clamp(15px,2vw,19px);margin-top:8px}
+.sub b{font-family:var(--mono);color:var(--white)}
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.legend i{display:inline-block;width:20px;height:0;border-top:3px solid;vertical-align:middle;margin-right:6px}
+.upd{font-family:var(--mono);font-size:12px;color:var(--dim);margin-top:10px}
+.banner{margin-top:18px;padding:12px 16px;border-radius:12px;border:1px dashed var(--amber);color:var(--amber);font-size:14px;line-height:1.5}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:24px 0}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}
+.kpi .k{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+.kpi .v{font-family:var(--mono);font-size:clamp(20px,3vw,28px);font-weight:700;margin-top:8px}
+.kpi .s{font-size:13px;color:var(--dim);margin-top:4px}
+.bar{height:6px;border-radius:4px;background:var(--line);margin-top:10px;overflow:hidden}.bar i{display:block;height:100%;background:var(--purple)}
+.layout{display:grid;grid-template-columns:1fr 340px;gap:16px;align-items:start}
+.section-t{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--white);margin:6px 0 12px}
+.assets{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px}
+.a{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.a-h{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:16px 18px 0}
+.a-sym{font-weight:800;font-size:20px}
+.a-meta{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:3px}
+.pill{font-family:var(--mono);font-size:12px;font-weight:700;padding:5px 10px;border-radius:8px;white-space:nowrap;color:#0b1019}
+.z-diskon{background:var(--teal)}.z-bawah{background:var(--blue)}.z-normal{background:var(--amber)}.z-mahal{background:var(--red)}
+.c-diskon{color:var(--teal)}.c-bawah{color:var(--blue)}.c-normal{color:var(--amber)}.c-mahal{color:var(--red)}
+.chart{display:block;width:100%;height:auto;margin-top:8px}
+.a-b{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:4px 18px 14px}
+.a-b .k{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--dim);text-transform:uppercase}
+.a-b .v{font-family:var(--mono);font-size:14px;margin-top:3px}
+.act{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:14px 18px;border-top:1px solid var(--line);background:var(--card2)}
+.act .m{font-family:var(--mono);font-size:24px;font-weight:700}
+.act .r{text-align:right;font-family:var(--mono);font-size:14px}
+.act .r small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+.notes{padding:0 18px 14px;background:var(--card2);font-size:13px;color:var(--amber);line-height:1.5}
+.side{position:sticky;top:16px;display:grid;gap:12px}
+.box{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px}
+.box h3{font-size:20px;font-weight:800}
+.box .hint{font-size:13px;color:var(--muted);margin-top:4px}
+.sumrow{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}
+.sumrow:last-child{border:0}
+.sumrow b{font-family:var(--mono)}
+.sumrow .mono{font-family:var(--mono);font-weight:700}
+.total{display:flex;justify-content:space-between;align-items:baseline;margin-top:12px;padding-top:12px;border-top:2px solid var(--line)}
+.total b{font-family:var(--mono);font-size:22px;color:var(--amber)}
+.scn{border-radius:14px;overflow:hidden;border:1px solid}
+.scn .t{padding:9px 14px;font-weight:800;font-size:15px;color:#0b1019}
+.scn .d{padding:10px 14px;font-size:13px;color:var(--muted);line-height:1.5}
+.scn .d b{font-family:var(--mono);font-size:17px;display:block;margin-bottom:2px}
+.hist{margin-top:16px}
+.hbars{display:flex;align-items:flex-end;gap:5px;height:120px;padding:10px 0;border-bottom:1px dashed var(--line)}
+.hbars div{flex:1;min-width:8px;max-width:28px;border-radius:3px 3px 0 0}
+.hl{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--dim);margin-top:6px}
+.paper{background:var(--paper);color:var(--ink);border-radius:18px;padding:22px;margin-top:24px}
+.paper h2{font-size:20px;font-weight:800;margin-bottom:14px}
+.rules{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.rule{background:var(--paper2);border:1px solid #dde2ea;border-radius:12px;padding:14px}
+.rule.hl2{border:2px solid var(--purple)}
+.rule h4{font-size:15px;font-weight:800;margin-bottom:8px}
+.rule p,.rule li{font-size:13px;color:var(--ink2);line-height:1.55}
+.rule ul{list-style:none}.rule li::before{content:"• "}
+.rule table{width:100%;font-family:var(--mono);font-size:12px;border-collapse:collapse}
+.rule td{padding:3px 0;color:var(--ink2)}.rule td.p{color:#7c3aed;font-weight:600}
+.concl{background:#e8edf5;color:var(--ink);border-radius:14px;padding:16px 20px;margin-top:14px;font-size:15px;line-height:1.55}
+.concl b{font-weight:800}.concl span{color:#6b7385}
+.err{font-family:var(--mono);font-size:12px;color:var(--red);margin-top:12px}
+@media(max-width:980px){.layout{grid-template-columns:1fr}.side{position:static}.rules{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:620px){.kpis{grid-template-columns:repeat(2,1fr)}.assets{grid-template-columns:1fr}.rules{grid-template-columns:1fr}.legend{gap:10px;font-size:12px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div>
+      <div class="eyebrow">STRATEGI AKUMULASI · 5 KELAS ASET</div>
+      <h1>EMA DCA Playbook</h1>
+      <div class="sub" id="sub">Pot Rp780 jt · 25 bulan · 1x = <b>Rp31,2 jt</b> per bulan</div>
+      <div class="upd" id="upd">memuat data…</div>
+    </div>
+    <div class="legend">
+      <span><i style="border-color:var(--white)"></i>Harga</span>
+      <span><i style="border-color:var(--purple)"></i>EMA</span>
+      <span><i style="border-color:var(--red);border-top-style:dashed"></i>Batas atas</span>
+      <span><i style="border-color:var(--teal);border-top-style:dashed"></i>Batas bawah</span>
+    </div>
+  </div>
+  <div id="banner"></div>
+
+  <div class="kpis">
+    <div class="kpi"><div class="k">Hari beli</div><div class="v c-normal" id="k-buy">–</div><div class="s" id="k-buy2"></div></div>
+    <div class="kpi"><div class="k" id="k-tot-l">Beli bulan ini</div><div class="v" id="k-tot">–</div><div class="s" id="k-tot2"></div></div>
+    <div class="kpi"><div class="k">Cadangan</div><div class="v c-diskon" id="k-res">–</div><div class="s">dari bulan 0,5x</div></div>
+    <div class="kpi"><div class="k">Progres pot</div><div class="v" id="k-prog">–</div><div class="bar"><i id="k-bar" style="width:0"></i></div><div class="s" id="k-prog2"></div></div>
+  </div>
+
+  <div class="layout">
+    <main>
+      <div class="section-t">Watchlist · Gap = (Harga − EMA) ÷ EMA</div>
+      <div class="assets" id="assets"></div>
+      <div class="box hist">
+        <div class="section-t" style="margin:0">Multiplier bulanan</div>
+        <div id="hist"></div>
+      </div>
+    </main>
+    <aside class="side">
+      <div class="box">
+        <h3 id="sum-t">Ringkasan</h3>
+        <div class="hint" id="sum-h"></div>
+        <div id="sum" style="margin-top:8px"></div>
+      </div>
+      <div class="box">
+        <h3>3 Skenario</h3>
+        <div class="hint">Cek tanggal yang sama tiap bulan, lalu pilih satu.</div>
+        <div style="display:grid;gap:10px;margin-top:12px">
+          <div class="scn" style="border-color:var(--teal)"><div class="t z-diskon">1. Di bawah EMA (Diskon)</div>
+            <div class="d"><b class="c-diskon">Beli 1,5x – 2x</b>Harga lebih murah dari trennya. Kumpulkan lebih banyak.</div></div>
+          <div class="scn" style="border-color:var(--amber)"><div class="t z-normal">2. Dekat EMA (Normal)</div>
+            <div class="d"><b class="c-normal">Beli 1x</b>Tren sehat. Beli jumlah normal.</div></div>
+          <div class="scn" style="border-color:var(--red)"><div class="t z-mahal">3. Jauh di atas EMA (Mahal)</div>
+            <div class="d"><b class="c-mahal">Beli 0,5x</b>Harga sudah melar. Sisa uang ke cadangan.</div></div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <section class="paper">
+    <h2>Aturan Main dan Maknanya</h2>
+    <div class="rules">
+      <div class="rule"><h4>Alokasi pot (1x)</h4><table id="r-alloc"></table></div>
+      <div class="rule hl2"><h4>EMA &amp; zona per aset</h4><table id="r-ema"></table></div>
+      <div class="rule"><h4>Cadangan</h4><ul><li>Bulan 0,5x: simpan sisa</li><li>Bulan 1,5–2x: ambil dari sini</li><li>Cadangan habis: maks 1x</li></ul></div>
+      <div class="rule"><h4>Aturan aman</h4><ul><li>Saham downtrend: maks 1x</li><li>Emas &amp; kripto: tahan, tanpa beli baru</li><li>IDX: bulatkan ke lot</li></ul></div>
+      <div class="rule"><h4>Kapan jual</h4><ul><li>Januari: rebalance ke target</li><li>Kripto +100% di atas EMA: jual 20–25%</li><li>Saham rugi 2 tahun: jual</li></ul></div>
+    </div>
+  </section>
+  <div class="concl"><b>Kesimpulan:</b> Uang menunggu di reksa dana pasar uang. Tiap bulan, beli lebih banyak saat harga di bawah EMA dan lebih sedikit saat jauh di atasnya. Selisihnya mengalir lewat cadangan, jadi total anggaran tetap. <span>Bukan nasihat keuangan.</span></div>
+  <div class="err" id="err"></div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const rp = x => "Rp" + (x / 1e6).toFixed(1).replace(/\.0$/, "").replace(".", ",") + " jt";
+const mx = m => String(m).replace(".", ",") + "x";
+const pct = x => (x >= 0 ? "+" : "") + x.toFixed(1).replace(".", ",") + "%";
+const num = x => x >= 1000 ? x.toLocaleString("id-ID", {maximumFractionDigits: 0}) : x >= 10 ? x.toLocaleString("id-ID", {maximumFractionDigits: 2}) : x.toLocaleString("id-ID", {maximumFractionDigits: 4});
+const MON = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
+const dLabel = s => { const [y, m] = s.split("-"); return MON[+m - 1] + " " + y.slice(2); };
+const ZCOL = {diskon: "var(--teal)", bawah: "var(--blue)", normal: "var(--amber)", mahal: "var(--red)"};
+
+function chart(a){
+  const W = 600, H = 220, P = {l: 6, r: 6, t: 12, b: 30};
+  const s = a.series; if (!s || s.length < 2) return "";
+  const hi = s.map(r => r[2] * (1 + a.high / 100)), lo = s.map(r => r[2] * (1 + a.low / 100));
+  const all = s.flatMap((r, i) => [r[1], hi[i], lo[i]]);
+  let mn = Math.min(...all), mxv = Math.max(...all); const pad = (mxv - mn) * .06; mn -= pad; mxv += pad;
+  const X = i => P.l + i / (s.length - 1) * (W - P.l - P.r), Y = v => P.t + (1 - (v - mn) / (mxv - mn)) * (H - P.t - P.b);
+  const path = arr => arr.map((v, i) => (i ? "L" : "M") + X(i).toFixed(1) + "," + Y(v).toFixed(1)).join("");
+  const top = `M${X(0)},${P.t}` + hi.map((v, i) => `L${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join("") + `L${X(s.length - 1)},${P.t}Z`;
+  const bot = `M${X(0)},${H - P.b}` + lo.map((v, i) => `L${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join("") + `L${X(s.length - 1)},${H - P.b}Z`;
+  const n = s.length - 1, ticks = [0, Math.round(n / 3), Math.round(2 * n / 3), n];
+  const lx = X(n), ly = Y(s[n][1]);
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}">
+    <path d="${top}" fill="rgba(239,83,80,.08)"/><path d="${bot}" fill="rgba(34,179,155,.10)"/>
+    <path d="${path(hi)}" fill="none" stroke="var(--red)" stroke-width="1.6" stroke-dasharray="6 5" vector-effect="non-scaling-stroke"/>
+    <path d="${path(lo)}" fill="none" stroke="var(--teal)" stroke-width="1.6" stroke-dasharray="6 5" vector-effect="non-scaling-stroke"/>
+    <path d="${path(s.map(r => r[2]))}" fill="none" stroke="var(--purple)" stroke-width="2.6" vector-effect="non-scaling-stroke"/>
+    <path d="${path(s.map(r => r[1]))}" fill="none" stroke="var(--white)" stroke-width="2" vector-effect="non-scaling-stroke"/>
+    <circle cx="${lx}" cy="${ly}" r="5" fill="${ZCOL[a.zkey]}" stroke="var(--bg)" stroke-width="2"/>
+    ${ticks.map((t, i) => `<text x="${X(t)}" y="${H - 6}" fill="var(--dim)" font-family="JetBrains Mono, monospace" font-size="15" text-anchor="${i === 0 ? "start" : i === 3 ? "end" : "middle"}">${dLabel(s[t][0])}</text>`).join("")}
+  </svg>`;
+}
+
+function render(d, demo){
+  $("banner").innerHTML = demo ? `<div class="banner">Ini <b>data contoh</b>. Data asli muncul setelah workflow <b>EMA DCA</b> dijalankan sekali (tab Actions → EMA DCA → Run workflow).</div>` : "";
+  $("sub").innerHTML = `Pot ${rp(d.pot_total)} · ${d.months} bulan · 1x = <b>${rp(d.pot_monthly)}</b> per bulan`;
+  const up = new Date(d.updated);
+  $("upd").textContent = "Diperbarui " + up.toLocaleString("id-ID", {timeZone: "Asia/Jakarta", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit"}) + " WIB" + (d.usd_idr ? " · USD/IDR " + num(d.usd_idr) : "");
+
+  // KPIs
+  const now = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Jakarta"})), bd = d.buy_day;
+  let next = new Date(now.getFullYear(), now.getMonth(), bd);
+  if (now.getDate() > bd) next = new Date(now.getFullYear(), now.getMonth() + 1, bd);
+  const days = Math.round((next - new Date(now.getFullYear(), now.getMonth(), now.getDate())) / 864e5);
+  $("k-buy").textContent = days === 0 ? "HARI INI" : days + " hari lagi";
+  $("k-buy2").textContent = "tanggal " + bd + " " + MON[next.getMonth()] + " " + next.getFullYear();
+  $("k-tot-l").textContent = d.is_buy_day ? "Beli bulan ini" : "Jika beli hari ini";
+  $("k-tot").textContent = rp(d.total);
+  $("k-tot2").textContent = (d.total / d.pot_monthly).toFixed(2).replace(".", ",") + "× dari pot 1x";
+  $("k-res").textContent = rp(d.reserve);
+  $("k-prog").textContent = `Bulan ${d.months_done}/${d.months}`;
+  $("k-bar").style.width = Math.min(100, d.spent / d.pot_total * 100) + "%";
+  $("k-prog2").textContent = `Terpakai ${rp(d.spent)} · sisa ${rp(d.pot_total - d.spent)}`;
+
+  // assets
+  $("assets").innerHTML = d.assets.map(a => `
+    <div class="a">
+      <div class="a-h"><div><div class="a-sym">${esc(a.sym)}</div>
+        <div class="a-meta">${esc(a.label)} · EMA ${a.ema_len} · ${a.tf.toUpperCase()} · ${esc(a.src)}</div></div>
+        <span class="pill z-${a.zkey}">${esc(a.zone)}</span></div>
+      ${chart(a)}
+      <div class="a-b">
+        <div><div class="k">Harga</div><div class="v">${num(a.price)}</div></div>
+        <div><div class="k">EMA ${a.ema_len}</div><div class="v">${num(a.ema)}</div></div>
+        <div><div class="k">Gap</div><div class="v c-${a.zkey}">${pct(a.gap)}</div></div>
+      </div>
+      <div class="act"><div class="m c-${a.zkey}">${a.hold ? "Tahan" : "Beli " + mx(a.mult)}</div>
+        <div class="r">${a.hold ? "tanpa beli baru" : rp(a.amount)}<small>${a.hold ? "zona " + a.low + "% / +" + a.high + "%" : (a.units || "zona " + a.low + "% / +" + a.high + "%")}</small></div></div>
+      ${a.notes.length ? `<div class="notes">⚠ ${a.notes.map(esc).join("<br>⚠ ")}</div>` : ""}
+    </div>`).join("") || `<div class="box">Watchlist kosong. Tambahkan aset di <b>config.yaml</b>.</div>`;
+
+  // summary
+  $("sum-t").textContent = d.is_buy_day ? "Hari beli · " + d.date : d.date;
+  $("sum-h").textContent = d.is_buy_day ? "Daftar beli bulan ini." : "Pantauan harian — angka = jika beli hari ini.";
+  $("sum").innerHTML = d.assets.map(a => `<div class="sumrow"><b>${esc(a.sym)}</b>
+      <span class="mono c-${a.zkey}">${a.hold ? "Tahan" : mx(a.mult) + " · " + rp(a.amount)}</span></div>`).join("")
+    + (d.fixed || []).map(f => `<div class="sumrow"><b>${esc(f.label)}</b><span class="mono">tetap · ${rp(f.amount)}</span></div>`).join("")
+    + `<div class="total"><span>Total</span><b>${rp(d.total)}</b></div>`;
+
+  // history
+  const h = d.history || [];
+  if (!h.length) $("hist").innerHTML = `<div class="hint" style="padding:18px 0;color:var(--muted);font-size:13px">Muncul setelah hari beli pertama tercatat.</div>`;
+  else {
+    const col = r => r < .85 ? "var(--red)" : r < 1.15 ? "var(--amber)" : r < 1.6 ? "var(--blue)" : "var(--teal)";
+    const max = Math.max(2, ...h.map(x => x.total / d.pot_monthly));
+    $("hist").innerHTML = `<div class="hbars">${h.map(x => { const r = x.total / d.pot_monthly;
+      return `<div title="${x.month}: ${rp(x.total)}" style="height:${r / max * 100}%;background:${col(r)}"></div>`; }).join("")}</div>
+      <div class="hl"><span>${dLabel(h[0].month)}</span><span>${dLabel(h[h.length - 1].month)}</span></div>`;
+  }
+
+  // rules tables
+  const C = d.classes || {};
+  $("r-alloc").innerHTML = Object.values(C).filter(c => c.budget_pct).map(c => `<tr><td>${esc(c.label)}</td><td style="text-align:right">${c.budget_pct}% · ${rp(d.pot_monthly * c.budget_pct / 100)}</td></tr>`).join("")
+    + (d.fixed_cfg || []).map(f => `<tr><td>${esc(f.label)}</td><td style="text-align:right">${f.budget_pct}% · ${rp(d.pot_monthly * f.budget_pct / 100)}</td></tr>`).join("");
+  $("r-ema").innerHTML = `<tr><td><b>Aset</b></td><td><b>EMA·TF</b></td><td style="text-align:right"><b>Zona</b></td></tr>` +
+    Object.values(C).map(c => `<tr><td>${esc(c.label)}</td><td class="p">${c.ema}·${c.tf.toUpperCase()}</td><td style="text-align:right">${c.low}/+${c.high}</td></tr>`).join("");
+  $("err").textContent = (d.errors || []).length ? "⚠ Gagal ambil data: " + d.errors.join("; ") : "";
+}
+
+// ------- demo data (dipakai hanya kalau data.json belum ada)
+function demo(){
+  const mk = (sym, cls, label, ema, tf, low, high, start, drift, seed, hold, base, src) => {
+    let p = start, e = start, r = seed; const series = [];
+    const t0 = new Date(Date.now() - 160 * (tf === "1W" ? 7 : 1) * 864e5);
+    for (let i = 0; i < 160; i++) { r = (r * 9301 + 49297) % 233280; p *= 1 + drift + (r / 233280 - .5) * .035;
+      e += (p - e) * 2 / (ema + 1); const dt = new Date(t0.getTime() + i * (tf === "1W" ? 7 : 1) * 864e5);
+      series.push([dt.toISOString().slice(0, 10), p, e]); }
+    const gap = (p - e) / e * 100;
+    const [mult, zone, zkey] = gap < low ? [2, "Diskon besar", "diskon"] : gap < 0 ? [1.5, "Di bawah EMA", "bawah"] : gap <= high ? [1, "Normal", "normal"] : [.5, "Terlalu mahal", "mahal"];
+    return {sym, cls, label, src, ema_len: ema, tf: tf.toLowerCase(), low, high, price: p, ema: e, gap, zone, zkey, mult, hold, base, amount: base * mult, notes: [], series};
+  };
+  const assets = [
+    mk("VOO", "us_etf", "US ETF", 200, "1D", -8, 20, 470, .0012, 7, false, 12.48e6, "Yahoo Finance"),
+    mk("BBCA.JK", "idx_stock", "Saham IDX", 200, "1D", -10, 25, 10200, -.0012, 3, false, 3.9e6, "Yahoo Finance"),
+    mk("AAPL", "us_stock", "Saham US", 200, "1D", -10, 30, 190, .0035, 11, false, 3.12e6, "Yahoo Finance"),
+    mk("GC=F", "gold", "Emas", 200, "1D", -8, 20, 2300, .0015, 5, true, 0, "Yahoo Finance"),
+    mk("BTCUSDT", "crypto", "Kripto", 50, "1W", -30, 60, 52000, .004, 13, true, 0, "Binance Spot")];
+  const fixed = [{label: "Sukuk", amount: 7.8e6}];
+  const total = assets.reduce((s, a) => s + a.amount, 0) + 7.8e6;
+  return {updated: new Date().toISOString(), date: "contoh", is_buy_day: false, buy_day: 1, pot_monthly: 31.2e6, pot_total: 780e6, months: 25,
+    months_done: 4, spent: 4 * 31.2e6, reserve: 6.2e6, total, fixed, usd_idr: 16300, errors: [],
+    history: [["2026-06", 1], ["2026-07", .5], ["2026-08", 1.5], ["2026-09", 2]].map(([month, r]) => ({month, total: r * 31.2e6})),
+    assets, classes: {us_etf: {label: "US ETF", ema: 200, tf: "1d", low: -8, high: 20, budget_pct: 40}, idx_stock: {label: "Saham IDX", ema: 200, tf: "1d", low: -10, high: 25, budget_pct: 25},
+      us_stock: {label: "Saham US", ema: 200, tf: "1d", low: -10, high: 30, budget_pct: 10}, gold: {label: "Emas", ema: 200, tf: "1d", low: -8, high: 20, budget_pct: 0},
+      crypto: {label: "Kripto", ema: 50, tf: "1w", low: -30, high: 60, budget_pct: 0}}, fixed_cfg: [{label: "Sukuk", budget_pct: 25}]};
+}
+
+async function load(){
+  try {
+    const r = await fetch("data.json?t=" + Date.now(), {cache: "no-store"});
+    if (!r.ok) throw 0;
+    render(await r.json(), false);
+  } catch (e) { render(demo(), true); }
+}
+load(); setInterval(load, 300000);
+</script>
+</body>
+</html>
