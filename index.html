@@ -83,6 +83,9 @@ h1{font-size:clamp(34px,6vw,54px);font-weight:800;letter-spacing:-.03em;margin-t
 .err{font-family:var(--mono);font-size:12px;color:var(--red);margin-top:12px}
 @media(max-width:980px){.layout{grid-template-columns:1fr}.side{position:static}.rules{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:620px){.kpis{grid-template-columns:repeat(2,1fr)}.assets{grid-template-columns:1fr}.rules{grid-template-columns:1fr}.legend{gap:10px;font-size:12px}}
+.sub.edit input{width:3.2ch;background:transparent;border:0;border-bottom:2px dashed var(--purple);color:var(--white);font:700 1em var(--mono);text-align:center;padding:0 2px}
+.sub.edit input#potIn{width:5ch}
+.sub.edit input:focus{outline:none;border-bottom-style:solid;background:rgba(166,108,255,.12)}
 .picker{margin:22px 0 4px}
 .pk-row{display:flex;gap:8px;flex-wrap:wrap}
 .pk-row input,.pk-row select{background:var(--bg);border:1px solid var(--line);color:var(--text);border-radius:12px;padding:12px 14px;font:600 15px var(--mono)}
@@ -115,7 +118,8 @@ h1{font-size:clamp(34px,6vw,54px);font-weight:800;letter-spacing:-.03em;margin-t
     <div>
       <div class="eyebrow">STRATEGI AKUMULASI · 5 KELAS ASET</div>
       <h1>EMA DCA Playbook</h1>
-      <div class="sub">Pot Rp780 jt · 25 bulan · 1x = <b>Rp31,2 jt</b> per bulan</div>
+      <div class="sub edit">Pot Rp<input id="potIn" inputmode="decimal" value="780" aria-label="Total pot (juta)"> jt · <input id="monIn" inputmode="numeric" value="25" aria-label="Jumlah bulan"> bulan · 1x = <b id="potX">Rp31,2 jt</b> per bulan · beli tgl <input id="dayIn" inputmode="numeric" value="1" aria-label="Tanggal beli"></div>
+      <div class="hint" style="margin-top:4px;font-size:12px;color:var(--dim)">Ketuk angka bergaris untuk mengubah.</div>
       <div class="upd" id="upd">memuat data…</div>
     </div>
     <div class="legend">
@@ -195,7 +199,9 @@ h1{font-size:clamp(34px,6vw,54px);font-weight:800;letter-spacing:-.03em;margin-t
 
 <script>
 /* ===================== Aturan playbook ===================== */
-const POT = 31.2e6, BUY_DAY = 1, LOOKBACK = 20;
+const LOOKBACK = 20;
+const SET = Object.assign({pot: 780, months: 25, day: 1}, (() => { try { return JSON.parse(localStorage.getItem("ema-set")) || {}; } catch (e) { return {}; } })());
+let POT = SET.pot * 1e6 / SET.months, BUY_DAY = SET.day;
 const CLASSES = {
   us_etf:    {label: "US ETF",    ema: 200, tf: "1d", low: -8,  high: 20, pct: 40},
   idx_stock: {label: "Saham IDX", ema: 200, tf: "1d", low: -10, high: 25, pct: 25, cap: true},
@@ -460,6 +466,24 @@ $("copy").onclick = async () => {
   try { await navigator.clipboard.writeText(yml); $("pkmsg").innerHTML = `<span class="c-diskon">✓ Tersalin. Tempel di config.yaml (bagian watchlist) supaya laporan Telegram sama.</span>`; }
   catch (e) { prompt("Salin teks ini ke config.yaml:", yml); }
 };
+
+const potIn = $("potIn"), monIn = $("monIn"), dayIn = $("dayIn");
+potIn.value = String(SET.pot).replace(".", ","); monIn.value = SET.months; dayIn.value = SET.day;
+function applySettings(){
+  const pot = parseFloat(potIn.value.replace(",", ".")), mon = parseInt(monIn.value), day = parseInt(dayIn.value);
+  if (pot > 0) SET.pot = pot;
+  if (mon > 0 && mon <= 600) SET.months = mon;
+  if (day >= 1 && day <= 28) SET.day = day;
+  POT = SET.pot * 1e6 / SET.months; BUY_DAY = SET.day;
+  $("potX").textContent = rp(POT);
+  store.set("ema-set", SET); render();
+}
+[potIn, monIn, dayIn].forEach(el => {
+  el.addEventListener("input", applySettings);
+  el.addEventListener("focus", () => el.select());
+  el.addEventListener("blur", () => { potIn.value = String(SET.pot).replace(".", ","); monIn.value = SET.months; dayIn.value = SET.day; });
+});
+$("potX").textContent = rp(POT);
 
 async function init(){
   Object.keys(RESULTS).forEach(k => delete RESULTS[k]);
