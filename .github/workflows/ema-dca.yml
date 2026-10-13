@@ -1,0 +1,30 @@
+name: EMA DCA
+on:
+  schedule:
+    - cron: "30 0 * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pandas requests pyyaml yfinance
+      - run: python invest.py
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          PAGES_URL: https://luvitrading.github.io
+      - run: |
+          git config user.name "ema-dca-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add data.json
+          [ -f state.json ] && git add state.json
+          git diff --cached --quiet && exit 0
+          git commit -m "Update data EMA DCA"
+          git pull --rebase && git push
