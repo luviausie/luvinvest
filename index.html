@@ -83,6 +83,30 @@ h1{font-size:clamp(34px,6vw,54px);font-weight:800;letter-spacing:-.03em;margin-t
 .err{font-family:var(--mono);font-size:12px;color:var(--red);margin-top:12px}
 @media(max-width:980px){.layout{grid-template-columns:1fr}.side{position:static}.rules{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:620px){.kpis{grid-template-columns:repeat(2,1fr)}.assets{grid-template-columns:1fr}.rules{grid-template-columns:1fr}.legend{gap:10px;font-size:12px}}
+.picker{margin:22px 0 4px}
+.pk-row{display:flex;gap:8px;flex-wrap:wrap}
+.pk-row input,.pk-row select{background:var(--bg);border:1px solid var(--line);color:var(--text);border-radius:12px;padding:12px 14px;font:600 15px var(--mono)}
+.pk-row input{flex:1;min-width:180px;text-transform:uppercase}
+.pk-row input::placeholder{text-transform:none;color:var(--dim);font-weight:400}
+.pk-row input:focus,.pk-row select:focus{outline:2px solid var(--purple);border-color:transparent}
+.btn{background:var(--purple);color:#0b1019;border:0;border-radius:12px;padding:12px 18px;font:800 15px var(--sans);cursor:pointer}
+.btn:disabled{opacity:.5;cursor:wait}
+.btn.ghost{background:transparent;color:var(--muted);border:1px solid var(--line);font-weight:600;font-size:13px;padding:8px 12px}
+.pk-msg{font-size:13px;margin-top:8px;min-height:18px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.chip{display:inline-flex;align-items:center;gap:8px;background:var(--card2);border:1px solid var(--line);border-radius:999px;padding:6px 6px 6px 12px;font:600 13px var(--mono)}
+.chip small{color:var(--dim);font-weight:400}
+.chip button{background:var(--line);color:var(--muted);border:0;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:14px;line-height:1}
+.chip button:hover{background:var(--red);color:#fff}
+.pk-foot{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}
+.pk-foot .hint{flex:1;min-width:200px}
+.resin{display:flex;align-items:baseline;gap:6px;margin-top:8px;font-family:var(--mono);font-size:clamp(20px,3vw,28px);font-weight:700;color:var(--teal)}
+.resin input{width:5.5ch;background:transparent;border:0;border-bottom:2px dashed var(--line);color:var(--teal);font:inherit;padding:0}
+.resin input:focus{outline:none;border-color:var(--teal)}
+.a .x{background:none;border:0;color:var(--dim);font-size:18px;cursor:pointer;margin-left:6px}
+.a .x:hover{color:var(--red)}
+.loading{padding:40px 18px;text-align:center;color:var(--muted);font-family:var(--mono);font-size:13px}
+.flow{font-family:var(--mono);font-size:13px;color:var(--muted);margin-top:8px}
 </style>
 </head>
 <body>
@@ -91,7 +115,7 @@ h1{font-size:clamp(34px,6vw,54px);font-weight:800;letter-spacing:-.03em;margin-t
     <div>
       <div class="eyebrow">STRATEGI AKUMULASI · 5 KELAS ASET</div>
       <h1>EMA DCA Playbook</h1>
-      <div class="sub" id="sub">Pot Rp780 jt · 25 bulan · 1x = <b>Rp31,2 jt</b> per bulan</div>
+      <div class="sub">Pot Rp780 jt · 25 bulan · 1x = <b>Rp31,2 jt</b> per bulan</div>
       <div class="upd" id="upd">memuat data…</div>
     </div>
     <div class="legend">
@@ -101,23 +125,39 @@ h1{font-size:clamp(34px,6vw,54px);font-weight:800;letter-spacing:-.03em;margin-t
       <span><i style="border-color:var(--teal);border-top-style:dashed"></i>Batas bawah</span>
     </div>
   </div>
-  <div id="banner"></div>
+
+  <div class="box picker">
+    <div class="section-t" style="margin-top:0">Tambah aset · ketik ticker</div>
+    <form class="pk-row" id="pk">
+      <input id="tk" placeholder="VOO · BBCA.JK · NVDA · GC=F · PEPEUSDT" autocomplete="off" autocapitalize="characters" spellcheck="false">
+      <select id="cl">
+        <option value="auto">Kelas: otomatis</option>
+        <option value="us_etf">US ETF</option><option value="idx_stock">Saham IDX</option>
+        <option value="us_stock">Saham US</option><option value="gold">Emas</option><option value="crypto">Kripto</option>
+      </select>
+      <button class="btn" id="addb" type="submit">Tambah</button>
+    </form>
+    <div class="pk-msg" id="pkmsg"></div>
+    <div class="chips" id="chips"></div>
+    <div class="pk-foot">
+      <div class="hint">Saham IDX pakai <b>.JK</b> (BBRI.JK) · emas <b>GC=F</b> · kripto pasangan Binance (<b>SOLUSDT</b>). Daftar tersimpan di perangkat ini.</div>
+      <button class="btn ghost" id="copy" type="button">Salin untuk config.yaml</button>
+      <button class="btn ghost" id="reset" type="button">Reset</button>
+    </div>
+  </div>
 
   <div class="kpis">
     <div class="kpi"><div class="k">Hari beli</div><div class="v c-normal" id="k-buy">–</div><div class="s" id="k-buy2"></div></div>
-    <div class="kpi"><div class="k" id="k-tot-l">Beli bulan ini</div><div class="v" id="k-tot">–</div><div class="s" id="k-tot2"></div></div>
-    <div class="kpi"><div class="k">Cadangan</div><div class="v c-diskon" id="k-res">–</div><div class="s">dari bulan 0,5x</div></div>
-    <div class="kpi"><div class="k">Progres pot</div><div class="v" id="k-prog">–</div><div class="bar"><i id="k-bar" style="width:0"></i></div><div class="s" id="k-prog2"></div></div>
+    <div class="kpi"><div class="k" id="k-tot-l">Jika beli hari ini</div><div class="v" id="k-tot">–</div><div class="s" id="k-tot2"></div></div>
+    <div class="kpi"><div class="k">Cadangan saat ini</div>
+      <label class="resin">Rp<input id="res" inputmode="decimal" value="0">jt</label><div class="s">ketuk angka untuk ubah</div></div>
+    <div class="kpi"><div class="k">Cadangan setelah beli</div><div class="v" id="k-res2">–</div><div class="s" id="k-flow"></div></div>
   </div>
 
   <div class="layout">
     <main>
       <div class="section-t">Watchlist · Gap = (Harga − EMA) ÷ EMA</div>
-      <div class="assets" id="assets"></div>
-      <div class="box hist">
-        <div class="section-t" style="margin:0">Multiplier bulanan</div>
-        <div id="hist"></div>
-      </div>
+      <div class="assets" id="assets"><div class="box loading">Mengambil harga…</div></div>
     </main>
     <aside class="side">
       <div class="box">
@@ -151,145 +191,284 @@ h1{font-size:clamp(34px,6vw,54px);font-weight:800;letter-spacing:-.03em;margin-t
     </div>
   </section>
   <div class="concl"><b>Kesimpulan:</b> Uang menunggu di reksa dana pasar uang. Tiap bulan, beli lebih banyak saat harga di bawah EMA dan lebih sedikit saat jauh di atasnya. Selisihnya mengalir lewat cadangan, jadi total anggaran tetap. <span>Bukan nasihat keuangan.</span></div>
-  <div class="err" id="err"></div>
 </div>
 
 <script>
+/* ===================== Aturan playbook ===================== */
+const POT = 31.2e6, BUY_DAY = 1, LOOKBACK = 20;
+const CLASSES = {
+  us_etf:    {label: "US ETF",    ema: 200, tf: "1d", low: -8,  high: 20, pct: 40},
+  idx_stock: {label: "Saham IDX", ema: 200, tf: "1d", low: -10, high: 25, pct: 25, cap: true},
+  us_stock:  {label: "Saham US",  ema: 200, tf: "1d", low: -10, high: 30, pct: 10, cap: true},
+  gold:      {label: "Emas",      ema: 200, tf: "1d", low: -8,  high: 20, pct: 0},
+  crypto:    {label: "Kripto",    ema: 50,  tf: "1w", low: -30, high: 60, pct: 0, tp: 100},
+};
+const FIXED = [{label: "Sukuk", pct: 25}];
+const DEFAULT_LIST = [["VOO","us_etf"],["BBCA.JK","idx_stock"],["BBRI.JK","idx_stock"],["AAPL","us_stock"],["GC=F","gold"],["BTCUSDT","crypto"],["ETHUSDT","crypto"]];
+const ETFS = new Set("VOO SPY IVV QQQ QQQM VTI VT VXUS VEA VWO SCHD VIG VUG VGT XLK XLF XLE XLV SMH SOXX IWM DIA ARKK JEPI JEPQ BND AGG TLT SPLG SPYG VYM VNQ EFA EEM IEMG ITOT RSP".split(" "));
+const GOLD = new Set("GC=F GLD IAU SGOL PHYS GLDM XAUUSD=X SI=F SLV".split(" "));
+
+/* ===================== util ===================== */
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const rp = x => "Rp" + (x / 1e6).toFixed(1).replace(/\.0$/, "").replace(".", ",") + " jt";
 const mx = m => String(m).replace(".", ",") + "x";
 const pct = x => (x >= 0 ? "+" : "") + x.toFixed(1).replace(".", ",") + "%";
-const num = x => x >= 1000 ? x.toLocaleString("id-ID", {maximumFractionDigits: 0}) : x >= 10 ? x.toLocaleString("id-ID", {maximumFractionDigits: 2}) : x.toLocaleString("id-ID", {maximumFractionDigits: 4});
+const num = x => x >= 1000 ? x.toLocaleString("id-ID", {maximumFractionDigits: 0}) : x >= 10 ? x.toLocaleString("id-ID", {maximumFractionDigits: 2}) : x.toLocaleString("id-ID", {maximumSignificantDigits: 5});
 const MON = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
-const dLabel = s => { const [y, m] = s.split("-"); return MON[+m - 1] + " " + y.slice(2); };
 const ZCOL = {diskon: "var(--teal)", bawah: "var(--blue)", normal: "var(--amber)", mahal: "var(--red)"};
+const store = {
+  get(k, d){ try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+};
 
+function guessClass(sym){
+  if (sym.endsWith(".JK")) return "idx_stock";
+  if (GOLD.has(sym)) return "gold";
+  if (/^[A-Z0-9]{2,}(USDT|USDC|FDUSD|BTC|ETH)$/.test(sym) && !sym.includes(".")) return "crypto";
+  if (ETFS.has(sym)) return "us_etf";
+  return "us_stock";
+}
+function normalize(sym, cls){
+  sym = sym.trim().toUpperCase().replace(/\s+/g, "");
+  if (cls === "idx_stock" && !sym.includes(".")) sym += ".JK";
+  if (cls === "crypto" && !/(USDT|USDC|FDUSD|BTC|ETH)$/.test(sym)) sym += "USDT";
+  return sym;
+}
+
+/* ===================== data ===================== */
+const BINANCE = ["https://data-api.binance.vision", "https://api.binance.com"];
+async function binance(sym, tf){
+  for (const h of BINANCE) {
+    try {
+      const r = await fetch(`${h}/api/v3/klines?symbol=${sym}&interval=${tf}&limit=600`);
+      if (r.status === 400) throw new Error(`${sym} tidak ada di Binance spot`);
+      if (!r.ok) continue;
+      return (await r.json()).map(k => [k[0], +k[4]]);
+    } catch (e) { if (e.message.includes("tidak ada")) throw e; }
+  }
+  throw new Error("Binance tidak bisa diakses");
+}
+const PROXIES = [u => u, u => "https://corsproxy.io/?url=" + encodeURIComponent(u),
+  u => "https://api.allorigins.win/raw?url=" + encodeURIComponent(u),
+  u => "https://api.codetabs.com/v1/proxy/?quest=" + encodeURIComponent(u)];
+let goodProxy = store.get("ema-proxy", 0);
+async function yahoo(sym, tf){
+  const [interval, range] = tf === "1w" ? ["1wk", "15y"] : ["1d", "5y"];
+  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?interval=${interval}&range=${range}`;
+  const order = [goodProxy, ...PROXIES.keys()].filter((v, i, a) => a.indexOf(v) === i);
+  let notFound = false;
+  for (const i of order) {
+    try {
+      const r = await fetch(PROXIES[i](url));
+      if (r.status === 404) { notFound = true; continue; }
+      if (!r.ok) continue;
+      const j = await r.json();
+      if (j?.chart?.error) { notFound = true; continue; }
+      const res = j?.chart?.result?.[0];
+      if (!res?.timestamp) { notFound = true; continue; }
+      const c = res.indicators.quote[0].close;
+      const out = res.timestamp.map((t, k) => [t * 1000, c[k]]).filter(x => x[1] != null);
+      if (out.length) { goodProxy = i; store.set("ema-proxy", i); return out; }
+    } catch (e) {}
+  }
+  throw new Error(notFound ? `Ticker ${sym} tidak ditemukan di Yahoo` : "Yahoo Finance tidak bisa diakses");
+}
+async function fetchSeries(sym, cls){
+  const tf = CLASSES[cls].tf, key = `ema-c:${sym}:${tf}`, hit = store.get(key);
+  if (hit && Date.now() - hit.ts < 30 * 60e3) return {data: hit.data, src: hit.src};
+  let data, src;
+  if (cls === "crypto") {
+    try { data = await binance(sym, tf); src = "Binance Spot"; }
+    catch (e) {
+      if (e.message.includes("tidak ada")) throw e;
+      data = await yahoo(sym.replace(/USDT$/, "") + "-USD", tf); src = "Yahoo (cadangan)";
+    }
+  } else { data = await yahoo(sym, tf); src = "Yahoo Finance"; }
+  store.set(key, {ts: Date.now(), data: data.slice(-400), src});
+  return {data, src};
+}
+let FX = null;
+async function getFx(){ try { const d = await yahoo("USDIDR=X", "1d"); FX = d[d.length - 1][1]; } catch (e) {} }
+
+/* ===================== hitung ===================== */
+function analyse(sym, cls, data, src){
+  const c = CLASSES[cls], k = 2 / (c.ema + 1);
+  if (data.length < c.ema + 5) throw new Error(`data baru ${data.length} candle (butuh ${c.ema + 5})`);
+  let e = data[0][1]; const ema = data.map(d => (e = d[1] * k + e * (1 - k)));
+  const n = data.length - 1, price = data[n][1], E = ema[n], gap = (price - E) / E * 100;
+  const [mult, zone, zkey] = gap < c.low ? [2, "Diskon besar", "diskon"] : gap < 0 ? [1.5, "Di bawah EMA", "bawah"] : gap <= c.high ? [1, "Normal", "normal"] : [.5, "Terlalu mahal", "mahal"];
+  const a = {sym, cls, src, c, price, ema: E, gap, zone, zkey, mult, notes: [], hold: !c.pct,
+    series: data.slice(-160).map((d, i, arr) => [d[0], d[1], ema[n - arr.length + 1 + i]])};
+  if (c.cap && E < ema[n - LOOKBACK] && a.mult > 1) { a.mult = 1; a.notes.push("Saham downtrend → maks 1x"); }
+  if (c.tp && gap >= c.tp) a.notes.push(`+${gap.toFixed(0)}% di atas EMA → jual 20–25%`);
+  return a;
+}
+function allocate(assets, reserve){
+  const per = {}; assets.forEach(a => per[a.cls] = (per[a.cls] || 0) + 1);
+  assets.forEach(a => { a.base = a.hold ? 0 : POT * a.c.pct / 100 / per[a.cls]; a.capped = false; });
+  let r = reserve, saved = 0, drawn = 0;
+  assets.filter(a => a.base && a.mult < 1).forEach(a => { const s = a.base * (1 - a.mult); r += s; saved += s; });
+  assets.filter(a => a.base && a.mult > 1).sort((x, y) => x.gap - y.gap).forEach(a => {
+    const extra = a.base * (a.mult - 1);
+    if (extra <= r) { r -= extra; drawn += extra; }
+    else { a.mult = 1; a.notes.push("Cadangan tidak cukup → maks 1x"); }
+  });
+  assets.forEach(a => {
+    a.amount = a.base * a.mult; a.units = "";
+    if (!a.hold && a.cls === "idx_stock") a.units = "≈ " + Math.floor(a.amount / (a.price * 100)) + " lot";
+    else if (!a.hold && FX && (a.cls === "us_etf" || a.cls === "us_stock")) a.units = "≈ " + (a.amount / FX / a.price).toFixed(2).replace(".", ",") + " unit";
+  });
+  const fixed = FIXED.map(f => ({label: f.label, amount: POT * f.pct / 100}));
+  const total = assets.reduce((s, a) => s + a.amount, 0) + fixed.reduce((s, f) => s + f.amount, 0);
+  return {after: r, saved, drawn, fixed, total};
+}
+
+/* ===================== gambar ===================== */
 function chart(a){
-  const W = 600, H = 220, P = {l: 6, r: 6, t: 12, b: 30};
-  const s = a.series; if (!s || s.length < 2) return "";
-  const hi = s.map(r => r[2] * (1 + a.high / 100)), lo = s.map(r => r[2] * (1 + a.low / 100));
+  const W = 600, H = 220, P = {l: 6, r: 6, t: 12, b: 30}, s = a.series, c = a.c;
+  const hi = s.map(r => r[2] * (1 + c.high / 100)), lo = s.map(r => r[2] * (1 + c.low / 100));
   const all = s.flatMap((r, i) => [r[1], hi[i], lo[i]]);
   let mn = Math.min(...all), mxv = Math.max(...all); const pad = (mxv - mn) * .06; mn -= pad; mxv += pad;
   const X = i => P.l + i / (s.length - 1) * (W - P.l - P.r), Y = v => P.t + (1 - (v - mn) / (mxv - mn)) * (H - P.t - P.b);
   const path = arr => arr.map((v, i) => (i ? "L" : "M") + X(i).toFixed(1) + "," + Y(v).toFixed(1)).join("");
-  const top = `M${X(0)},${P.t}` + hi.map((v, i) => `L${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join("") + `L${X(s.length - 1)},${P.t}Z`;
-  const bot = `M${X(0)},${H - P.b}` + lo.map((v, i) => `L${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join("") + `L${X(s.length - 1)},${H - P.b}Z`;
-  const n = s.length - 1, ticks = [0, Math.round(n / 3), Math.round(2 * n / 3), n];
-  const lx = X(n), ly = Y(s[n][1]);
+  const n = s.length - 1;
+  const top = `M${X(0)},${P.t}` + hi.map((v, i) => `L${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join("") + `L${X(n)},${P.t}Z`;
+  const bot = `M${X(0)},${H - P.b}` + lo.map((v, i) => `L${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join("") + `L${X(n)},${H - P.b}Z`;
+  const ticks = [0, Math.round(n / 3), Math.round(2 * n / 3), n];
+  const lab = t => { const d = new Date(t); return MON[d.getMonth()] + " " + String(d.getFullYear()).slice(2); };
   return `<svg class="chart" viewBox="0 0 ${W} ${H}">
     <path d="${top}" fill="rgba(239,83,80,.08)"/><path d="${bot}" fill="rgba(34,179,155,.10)"/>
-    <path d="${path(hi)}" fill="none" stroke="var(--red)" stroke-width="1.6" stroke-dasharray="6 5" vector-effect="non-scaling-stroke"/>
-    <path d="${path(lo)}" fill="none" stroke="var(--teal)" stroke-width="1.6" stroke-dasharray="6 5" vector-effect="non-scaling-stroke"/>
-    <path d="${path(s.map(r => r[2]))}" fill="none" stroke="var(--purple)" stroke-width="2.6" vector-effect="non-scaling-stroke"/>
-    <path d="${path(s.map(r => r[1]))}" fill="none" stroke="var(--white)" stroke-width="2" vector-effect="non-scaling-stroke"/>
-    <circle cx="${lx}" cy="${ly}" r="5" fill="${ZCOL[a.zkey]}" stroke="var(--bg)" stroke-width="2"/>
-    ${ticks.map((t, i) => `<text x="${X(t)}" y="${H - 6}" fill="var(--dim)" font-family="JetBrains Mono, monospace" font-size="15" text-anchor="${i === 0 ? "start" : i === 3 ? "end" : "middle"}">${dLabel(s[t][0])}</text>`).join("")}
+    <path d="${path(hi)}" fill="none" stroke="var(--red)" stroke-width="1.6" stroke-dasharray="6 5"/>
+    <path d="${path(lo)}" fill="none" stroke="var(--teal)" stroke-width="1.6" stroke-dasharray="6 5"/>
+    <path d="${path(s.map(r => r[2]))}" fill="none" stroke="var(--purple)" stroke-width="2.6"/>
+    <path d="${path(s.map(r => r[1]))}" fill="none" stroke="var(--white)" stroke-width="2"/>
+    <circle cx="${X(n)}" cy="${Y(s[n][1])}" r="5" fill="${ZCOL[a.zkey]}" stroke="var(--bg)" stroke-width="2"/>
+    ${ticks.map((t, i) => `<text x="${X(t)}" y="${H - 8}" fill="var(--dim)" font-family="JetBrains Mono, monospace" font-size="15" text-anchor="${i === 0 ? "start" : i === 3 ? "end" : "middle"}">${lab(s[t][0])}</text>`).join("")}
   </svg>`;
 }
 
-function render(d, demo){
-  $("banner").innerHTML = demo ? `<div class="banner">Ini <b>data contoh</b>. Data asli muncul setelah workflow <b>EMA DCA</b> dijalankan sekali (tab Actions → EMA DCA → Run workflow).</div>` : "";
-  $("sub").innerHTML = `Pot ${rp(d.pot_total)} · ${d.months} bulan · 1x = <b>${rp(d.pot_monthly)}</b> per bulan`;
-  const up = new Date(d.updated);
-  $("upd").textContent = "Diperbarui " + up.toLocaleString("id-ID", {timeZone: "Asia/Jakarta", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit"}) + " WIB" + (d.usd_idr ? " · USD/IDR " + num(d.usd_idr) : "");
+function card(a){
+  if (a.error) return `<div class="a"><div class="a-h"><div><div class="a-sym">${esc(a.sym)}</div><div class="a-meta">${esc(CLASSES[a.cls].label)}</div></div>
+      <button class="x" data-rm="${esc(a.sym)}" title="Hapus">×</button></div>
+      <div class="notes" style="background:none;padding-top:12px;color:var(--red)">⚠ ${esc(a.error)}</div>
+      <div class="act"><span class="hint">Coba lagi nanti, atau hapus.</span><button class="btn ghost" data-retry="${esc(a.sym)}">Coba lagi</button></div></div>`;
+  const c = a.c;
+  return `<div class="a">
+    <div class="a-h"><div><div class="a-sym">${esc(a.sym)}</div>
+      <div class="a-meta">${c.label} · EMA ${c.ema} · ${c.tf.toUpperCase()} · ${esc(a.src)}</div></div>
+      <div style="display:flex;align-items:center"><span class="pill z-${a.zkey}">${a.zone}</span><button class="x" data-rm="${esc(a.sym)}" title="Hapus">×</button></div></div>
+    ${chart(a)}
+    <div class="a-b">
+      <div><div class="k">Harga</div><div class="v">${num(a.price)}</div></div>
+      <div><div class="k">EMA ${c.ema}</div><div class="v">${num(a.ema)}</div></div>
+      <div><div class="k">Gap</div><div class="v c-${a.zkey}">${pct(a.gap)}</div></div>
+    </div>
+    <div class="act"><div class="m c-${a.zkey}">${a.hold ? "Tahan" : "Beli " + mx(a.mult)}</div>
+      <div class="r">${a.hold ? "tanpa beli baru" : rp(a.amount)}<small>${a.units || `zona ${c.low}% / +${c.high}%`}</small></div></div>
+    ${a.notes.length ? `<div class="notes">⚠ ${a.notes.map(esc).join("<br>⚠ ")}</div>` : ""}
+  </div>`;
+}
 
-  // KPIs
-  const now = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Jakarta"})), bd = d.buy_day;
-  let next = new Date(now.getFullYear(), now.getMonth(), bd);
-  if (now.getDate() > bd) next = new Date(now.getFullYear(), now.getMonth() + 1, bd);
+/* ===================== state & render ===================== */
+let LIST = store.get("ema-list", DEFAULT_LIST);
+const RESULTS = {};
+$("res").value = String(store.get("ema-reserve", 0)).replace(".", ",");
+
+function render(){
+  const ok = LIST.map(([s]) => RESULTS[s]).filter(a => a && !a.error);
+  const reserve = (parseFloat($("res").value.replace(",", ".")) || 0) * 1e6;
+  ok.forEach(a => { a.notes = a.notes.filter(n => !n.startsWith("Cadangan")); a.mult = a.mult0; });
+  const al = allocate(ok, reserve);
+
+  $("chips").innerHTML = LIST.map(([s, c]) => `<span class="chip">${esc(s)} <small>${CLASSES[c].label}</small><button data-rm="${esc(s)}" title="Hapus">×</button></span>`).join("");
+  const order = Object.keys(CLASSES);
+  const sorted = [...LIST].sort((x, y) => order.indexOf(x[1]) - order.indexOf(y[1]));
+  $("assets").innerHTML = sorted.map(([s]) => RESULTS[s] ? card(RESULTS[s]) : `<div class="a"><div class="loading">Mengambil ${esc(s)}…</div></div>`).join("")
+    || `<div class="box">Belum ada aset. Ketik ticker di atas lalu tekan <b>Tambah</b>.</div>`;
+
+  // KPI
+  const now = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Jakarta"}));
+  let next = new Date(now.getFullYear(), now.getMonth(), BUY_DAY);
+  if (now.getDate() > BUY_DAY) next = new Date(now.getFullYear(), now.getMonth() + 1, BUY_DAY);
   const days = Math.round((next - new Date(now.getFullYear(), now.getMonth(), now.getDate())) / 864e5);
   $("k-buy").textContent = days === 0 ? "HARI INI" : days + " hari lagi";
-  $("k-buy2").textContent = "tanggal " + bd + " " + MON[next.getMonth()] + " " + next.getFullYear();
-  $("k-tot-l").textContent = d.is_buy_day ? "Beli bulan ini" : "Jika beli hari ini";
-  $("k-tot").textContent = rp(d.total);
-  $("k-tot2").textContent = (d.total / d.pot_monthly).toFixed(2).replace(".", ",") + "× dari pot 1x";
-  $("k-res").textContent = rp(d.reserve);
-  $("k-prog").textContent = `Bulan ${d.months_done}/${d.months}`;
-  $("k-bar").style.width = Math.min(100, d.spent / d.pot_total * 100) + "%";
-  $("k-prog2").textContent = `Terpakai ${rp(d.spent)} · sisa ${rp(d.pot_total - d.spent)}`;
+  $("k-buy2").textContent = "tanggal " + BUY_DAY + " " + MON[next.getMonth()] + " " + next.getFullYear();
+  $("k-tot-l").textContent = days === 0 ? "Beli hari ini" : "Jika beli hari ini";
+  $("k-tot").textContent = rp(al.total);
+  $("k-tot2").textContent = (al.total / POT).toFixed(2).replace(".", ",") + "× dari pot 1x";
+  $("k-res2").textContent = rp(al.after);
+  $("k-res2").className = "v " + (al.after < reserve ? "c-bawah" : "c-diskon");
+  $("k-flow").textContent = (al.saved ? "+" + rp(al.saved) + " masuk " : "") + (al.drawn ? "−" + rp(al.drawn) + " dipakai" : "") || "tidak berubah";
 
-  // assets
-  $("assets").innerHTML = d.assets.map(a => `
-    <div class="a">
-      <div class="a-h"><div><div class="a-sym">${esc(a.sym)}</div>
-        <div class="a-meta">${esc(a.label)} · EMA ${a.ema_len} · ${a.tf.toUpperCase()} · ${esc(a.src)}</div></div>
-        <span class="pill z-${a.zkey}">${esc(a.zone)}</span></div>
-      ${chart(a)}
-      <div class="a-b">
-        <div><div class="k">Harga</div><div class="v">${num(a.price)}</div></div>
-        <div><div class="k">EMA ${a.ema_len}</div><div class="v">${num(a.ema)}</div></div>
-        <div><div class="k">Gap</div><div class="v c-${a.zkey}">${pct(a.gap)}</div></div>
-      </div>
-      <div class="act"><div class="m c-${a.zkey}">${a.hold ? "Tahan" : "Beli " + mx(a.mult)}</div>
-        <div class="r">${a.hold ? "tanpa beli baru" : rp(a.amount)}<small>${a.hold ? "zona " + a.low + "% / +" + a.high + "%" : (a.units || "zona " + a.low + "% / +" + a.high + "%")}</small></div></div>
-      ${a.notes.length ? `<div class="notes">⚠ ${a.notes.map(esc).join("<br>⚠ ")}</div>` : ""}
-    </div>`).join("") || `<div class="box">Watchlist kosong. Tambahkan aset di <b>config.yaml</b>.</div>`;
-
-  // summary
-  $("sum-t").textContent = d.is_buy_day ? "Hari beli · " + d.date : d.date;
-  $("sum-h").textContent = d.is_buy_day ? "Daftar beli bulan ini." : "Pantauan harian — angka = jika beli hari ini.";
-  $("sum").innerHTML = d.assets.map(a => `<div class="sumrow"><b>${esc(a.sym)}</b>
+  // ringkasan
+  $("sum-t").textContent = days === 0 ? "Daftar beli hari ini" : "Ringkasan";
+  $("sum-h").textContent = days === 0 ? "Hari beli! Eksekusi daftar ini." : "Pantauan — angka = jika beli hari ini.";
+  $("sum").innerHTML = sorted.map(([s]) => RESULTS[s]).filter(a => a && !a.error).map(a => `<div class="sumrow"><b>${esc(a.sym)}</b>
       <span class="mono c-${a.zkey}">${a.hold ? "Tahan" : mx(a.mult) + " · " + rp(a.amount)}</span></div>`).join("")
-    + (d.fixed || []).map(f => `<div class="sumrow"><b>${esc(f.label)}</b><span class="mono">tetap · ${rp(f.amount)}</span></div>`).join("")
-    + `<div class="total"><span>Total</span><b>${rp(d.total)}</b></div>`;
+    + al.fixed.map(f => `<div class="sumrow"><b>${esc(f.label)}</b><span class="mono">tetap · ${rp(f.amount)}</span></div>`).join("")
+    + `<div class="total"><span>Total</span><b>${rp(al.total)}</b></div>`;
 
-  // history
-  const h = d.history || [];
-  if (!h.length) $("hist").innerHTML = `<div class="hint" style="padding:18px 0;color:var(--muted);font-size:13px">Muncul setelah hari beli pertama tercatat.</div>`;
-  else {
-    const col = r => r < .85 ? "var(--red)" : r < 1.15 ? "var(--amber)" : r < 1.6 ? "var(--blue)" : "var(--teal)";
-    const max = Math.max(2, ...h.map(x => x.total / d.pot_monthly));
-    $("hist").innerHTML = `<div class="hbars">${h.map(x => { const r = x.total / d.pot_monthly;
-      return `<div title="${x.month}: ${rp(x.total)}" style="height:${r / max * 100}%;background:${col(r)}"></div>`; }).join("")}</div>
-      <div class="hl"><span>${dLabel(h[0].month)}</span><span>${dLabel(h[h.length - 1].month)}</span></div>`;
-  }
-
-  // rules tables
-  const C = d.classes || {};
-  $("r-alloc").innerHTML = Object.values(C).filter(c => c.budget_pct).map(c => `<tr><td>${esc(c.label)}</td><td style="text-align:right">${c.budget_pct}% · ${rp(d.pot_monthly * c.budget_pct / 100)}</td></tr>`).join("")
-    + (d.fixed_cfg || []).map(f => `<tr><td>${esc(f.label)}</td><td style="text-align:right">${f.budget_pct}% · ${rp(d.pot_monthly * f.budget_pct / 100)}</td></tr>`).join("");
+  // aturan
+  const cnt = {}; LIST.forEach(([, c]) => cnt[c] = (cnt[c] || 0) + 1);
+  $("r-alloc").innerHTML = Object.entries(CLASSES).filter(([, c]) => c.pct).map(([k, c]) => `<tr><td>${c.label}</td><td style="text-align:right">${c.pct}% · ${rp(POT * c.pct / 100)}</td></tr>`).join("")
+    + FIXED.map(f => `<tr><td>${f.label}</td><td style="text-align:right">${f.pct}% · ${rp(POT * f.pct / 100)}</td></tr>`).join("");
   $("r-ema").innerHTML = `<tr><td><b>Aset</b></td><td><b>EMA·TF</b></td><td style="text-align:right"><b>Zona</b></td></tr>` +
-    Object.values(C).map(c => `<tr><td>${esc(c.label)}</td><td class="p">${c.ema}·${c.tf.toUpperCase()}</td><td style="text-align:right">${c.low}/+${c.high}</td></tr>`).join("");
-  $("err").textContent = (d.errors || []).length ? "⚠ Gagal ambil data: " + d.errors.join("; ") : "";
+    Object.values(CLASSES).map(c => `<tr><td>${c.label}</td><td class="p">${c.ema}·${c.tf.toUpperCase()}</td><td style="text-align:right">${c.low}/+${c.high}</td></tr>`).join("");
+  $("upd").textContent = "Harga terkini · " + new Date().toLocaleString("id-ID", {timeZone: "Asia/Jakarta", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit"}) + " WIB" + (FX ? " · USD/IDR " + num(FX) : "");
 }
 
-// ------- demo data (dipakai hanya kalau data.json belum ada)
-function demo(){
-  const mk = (sym, cls, label, ema, tf, low, high, start, drift, seed, hold, base, src) => {
-    let p = start, e = start, r = seed; const series = [];
-    const t0 = new Date(Date.now() - 160 * (tf === "1W" ? 7 : 1) * 864e5);
-    for (let i = 0; i < 160; i++) { r = (r * 9301 + 49297) % 233280; p *= 1 + drift + (r / 233280 - .5) * .035;
-      e += (p - e) * 2 / (ema + 1); const dt = new Date(t0.getTime() + i * (tf === "1W" ? 7 : 1) * 864e5);
-      series.push([dt.toISOString().slice(0, 10), p, e]); }
-    const gap = (p - e) / e * 100;
-    const [mult, zone, zkey] = gap < low ? [2, "Diskon besar", "diskon"] : gap < 0 ? [1.5, "Di bawah EMA", "bawah"] : gap <= high ? [1, "Normal", "normal"] : [.5, "Terlalu mahal", "mahal"];
-    return {sym, cls, label, src, ema_len: ema, tf: tf.toLowerCase(), low, high, price: p, ema: e, gap, zone, zkey, mult, hold, base, amount: base * mult, notes: [], series};
-  };
-  const assets = [
-    mk("VOO", "us_etf", "US ETF", 200, "1D", -8, 20, 470, .0012, 7, false, 12.48e6, "Yahoo Finance"),
-    mk("BBCA.JK", "idx_stock", "Saham IDX", 200, "1D", -10, 25, 10200, -.0012, 3, false, 3.9e6, "Yahoo Finance"),
-    mk("AAPL", "us_stock", "Saham US", 200, "1D", -10, 30, 190, .0035, 11, false, 3.12e6, "Yahoo Finance"),
-    mk("GC=F", "gold", "Emas", 200, "1D", -8, 20, 2300, .0015, 5, true, 0, "Yahoo Finance"),
-    mk("BTCUSDT", "crypto", "Kripto", 50, "1W", -30, 60, 52000, .004, 13, true, 0, "Binance Spot")];
-  const fixed = [{label: "Sukuk", amount: 7.8e6}];
-  const total = assets.reduce((s, a) => s + a.amount, 0) + 7.8e6;
-  return {updated: new Date().toISOString(), date: "contoh", is_buy_day: false, buy_day: 1, pot_monthly: 31.2e6, pot_total: 780e6, months: 25,
-    months_done: 4, spent: 4 * 31.2e6, reserve: 6.2e6, total, fixed, usd_idr: 16300, errors: [],
-    history: [["2026-06", 1], ["2026-07", .5], ["2026-08", 1.5], ["2026-09", 2]].map(([month, r]) => ({month, total: r * 31.2e6})),
-    assets, classes: {us_etf: {label: "US ETF", ema: 200, tf: "1d", low: -8, high: 20, budget_pct: 40}, idx_stock: {label: "Saham IDX", ema: 200, tf: "1d", low: -10, high: 25, budget_pct: 25},
-      us_stock: {label: "Saham US", ema: 200, tf: "1d", low: -10, high: 30, budget_pct: 10}, gold: {label: "Emas", ema: 200, tf: "1d", low: -8, high: 20, budget_pct: 0},
-      crypto: {label: "Kripto", ema: 50, tf: "1w", low: -30, high: 60, budget_pct: 0}}, fixed_cfg: [{label: "Sukuk", budget_pct: 25}]};
-}
-
-async function load(){
+async function load(sym, cls){
   try {
-    const r = await fetch("data.json?t=" + Date.now(), {cache: "no-store"});
-    if (!r.ok) throw 0;
-    render(await r.json(), false);
-  } catch (e) { render(demo(), true); }
+    const {data, src} = await fetchSeries(sym, cls);
+    const a = analyse(sym, cls, data, src); a.mult0 = a.mult; a.notes0 = [...a.notes];
+    RESULTS[sym] = a; return a;
+  } catch (e) { RESULTS[sym] = {sym, cls, error: e.message}; throw e; }
+  finally { render(); }
 }
-load(); setInterval(load, 300000);
+
+/* ===================== events ===================== */
+$("pk").addEventListener("submit", async ev => {
+  ev.preventDefault();
+  const raw = $("tk").value; if (!raw.trim()) return;
+  const pick = $("cl").value, cls0 = pick === "auto" ? guessClass(normalize(raw, "")) : pick;
+  const sym = normalize(raw, cls0), cls = pick === "auto" ? guessClass(sym) : cls0;
+  if (LIST.some(([s]) => s === sym)) { $("pkmsg").innerHTML = `<span class="c-normal">${esc(sym)} sudah ada di daftar.</span>`; return; }
+  $("addb").disabled = true; $("pkmsg").innerHTML = `<span style="color:var(--muted)">Mencari ${esc(sym)}…</span>`;
+  try {
+    const {data, src} = await fetchSeries(sym, cls);
+    const a = analyse(sym, cls, data, src); a.mult0 = a.mult;
+    RESULTS[sym] = a; LIST.push([sym, cls]); store.set("ema-list", LIST);
+    $("tk").value = ""; $("cl").value = "auto";
+    $("pkmsg").innerHTML = `<span class="c-diskon">✓ ${esc(sym)} ditambahkan sebagai ${CLASSES[cls].label}.</span>`;
+  } catch (e) {
+    $("pkmsg").innerHTML = `<span class="c-mahal">✗ ${esc(e.message)}.</span> <span style="color:var(--muted)">Cek ejaan, atau pilih kelas yang benar.</span>`;
+  }
+  $("addb").disabled = false; render();
+});
+document.addEventListener("click", e => {
+  const rm = e.target.closest("[data-rm]")?.dataset.rm;
+  if (rm) { LIST = LIST.filter(([s]) => s !== rm); delete RESULTS[rm]; store.set("ema-list", LIST); render(); }
+  const rt = e.target.closest("[data-retry]")?.dataset.retry;
+  if (rt) { const it = LIST.find(([s]) => s === rt); delete RESULTS[rt]; render(); load(...it).catch(() => {}); }
+});
+$("res").addEventListener("input", () => { store.set("ema-reserve", parseFloat($("res").value.replace(",", ".")) || 0); render(); });
+$("reset").onclick = () => { if (!confirm("Kembalikan daftar ke default?")) return; LIST = DEFAULT_LIST.map(x => [...x]); store.set("ema-list", LIST); init(); };
+$("copy").onclick = async () => {
+  const by = {}; Object.keys(CLASSES).forEach(k => by[k] = []); LIST.forEach(([s, c]) => by[c].push(s));
+  const yml = "watchlist:\n" + Object.entries(by).map(([k, v]) => `  ${(k + ":").padEnd(11)}[${v.join(", ")}]`).join("\n");
+  try { await navigator.clipboard.writeText(yml); $("pkmsg").innerHTML = `<span class="c-diskon">✓ Tersalin. Tempel di config.yaml (bagian watchlist) supaya laporan Telegram sama.</span>`; }
+  catch (e) { prompt("Salin teks ini ke config.yaml:", yml); }
+};
+
+async function init(){
+  Object.keys(RESULTS).forEach(k => delete RESULTS[k]);
+  render();
+  await getFx();
+  await Promise.allSettled(LIST.map(([s, c]) => load(s, c)));
+}
+init();
+setInterval(() => { Object.keys(localStorage).filter(k => k.startsWith("ema-c:")).forEach(k => { try { localStorage.removeItem(k); } catch (e) {} }); init(); }, 30 * 60e3);
 </script>
 </body>
 </html>
