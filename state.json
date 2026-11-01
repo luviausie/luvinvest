@@ -1,0 +1,18 @@
+{
+ "reserve": 0,
+ "last_month": "2026-11",
+ "spent": 31200000,
+ "months_done": 1,
+ "history": [
+  {
+   "month": "2026-11",
+   "total": 31200000,
+   "assets": {
+    "VOO": 1.0,
+    "BBCA.JK": 1.0,
+    "BBRI.JK": 1.0,
+    "AAPL": 1.0
+   }
+  }
+ ]
+}
